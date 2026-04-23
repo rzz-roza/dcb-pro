@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>DCB Pro v1.0</title>
+  <meta name="theme-color" content="#000000">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23000'/><text x='50' y='68' text-anchor='middle' fill='%233b82f6' font-size='50' font-family='Arial' font-weight='900'>DCB</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+<div id="splashOverlay">
+  <div class="splash-box">
+    <div class="splash-logo">DCB<span class="text-blue">PRO</span></div>
+    <p class="splash-desc">Dead Cat Bounce Detector v1.0</p>
+    <div id="splashLoginForm">
+      <p class="splash-info">Aktivasi perangkat diperlukan. Hubungi kontak di bawah untuk token akses.</p>
+      <div class="form-group"><label>Device ID</label><input type="text" id="deviceIdDisplay" readonly><button class="btn btn-sm" id="copyDeviceIdBtn">Salin</button></div>
+      <div class="form-group"><label>Token Akses</label><input type="text" id="activationTokenInput" placeholder="Masukkan token"></div>
+      <button class="btn btn-primary" id="verifyTokenBtn">AKTIFKAN</button>
+      <p class="splash-contact"><a href="mailto:rzahhonly@gmail.com">rzahhonly@gmail.com</a> | <a href="https://instagram.com/rzz.roza" target="_blank">@rzz.roza</a></p>
+    </div>
+  </div>
+</div>
+
+<div id="app" class="app-shell" style="display:none;">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <span class="logo-icon"><svg width="28" height="28" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="none" stroke="#3b82f6" stroke-width="4"/><text x="50" y="68" text-anchor="middle" fill="#3b82f6" font-size="50" font-family="Arial" font-weight="900">DCB</text></svg></span>
+        <div class="logo-text"><span class="logo-title">DCB <span class="text-blue">PRO</span></span><span class="logo-subtitle">v1.0</span></div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" data-page="scanner"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span>Scanner</span></a>
+      <a class="nav-item" data-page="watchlist"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><span>Watchlist</span></a>
+      <a class="nav-item" data-page="backtest"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span>Backtest</span></a>
+      <a class="nav-item" data-page="history"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>History</span></a>
+      <a class="nav-item" data-page="contact"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span>Contact</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-donation">
+        <strong>Donasi BTC</strong>
+        <code class="mono" style="font-size:0.6rem;word-break:break-all;">bc1q0sg7h0yfvg5gxq9d3gjc8g8lq6z5xw7v9n5x3</code>
+        <button class="btn btn-sm" id="copyBtcBtn" style="margin-top:4px;">Salin</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-left"><h1 class="topbar-title" id="pageTitle">Scanner</h1></div>
+      <div class="topbar-right">
+        <span id="remainingDisplay" style="font-size:0.75rem;color:#888;margin-right:12px;"></span>
+        <button id="logoutBtn" class="btn btn-ghost" style="font-size:1.2rem;">⏻</button>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <!-- SCANNER PAGE -->
+      <section id="scannerPage" class="page active">
+        <div class="grid-2">
+          <div class="card">
+            <div class="input-row">
+              <input type="text" id="symbolInput" class="mono" placeholder="BTCUSDT" autocomplete="off" autocapitalize="characters" spellcheck="false">
+              <button id="scanBtn" class="btn btn-primary">SCAN</button>
+            </div>
+            <div class="pair-tags" id="pairTags"></div>
+            <div class="tf-row">
+              <button class="tf active" data-tf="1h">1H</button>
+              <button class="tf" data-tf="15m">15m</button>
+              <button class="tf" data-tf="4h">4H</button>
+              <button class="tf" data-tf="1d">1D</button>
+              <button class="tf" data-tf="all">ALL</button>
+            </div>
+            <div class="auto-row">
+              <label class="switch"><input type="checkbox" id="autoScanToggle"><span class="slider"></span></label>
+              <span class="auto-label">Auto</span>
+              <select id="autoInterval" class="select-inline"><option value="5">5m</option><option value="15" selected>15m</option><option value="30">30m</option><option value="60">60m</option></select>
+              <span class="auto-label">Alert &gt;</span>
+              <select id="autoThreshold" class="select-inline"><option value="70">70</option><option value="80">80</option><option value="90">90</option></select>
+            </div>
+            <div class="risk-calc" id="riskCalculator">
+              <h4 style="font-size:0.75rem;color:#888;margin-top:12px;">RISK CALCULATOR</h4>
+              <div class="input-row" style="margin-top:6px;">
+                <input type="number" id="accountBalance" placeholder="Modal ($)" class="mono" style="width:100px;">
+                <input type="number" id="riskPercent" placeholder="Risk %" class="mono" style="width:80px;" value="1.5" step="0.1">
+              </div>
+              <div id="positionOutput" style="font-size:0.75rem;color:#ccc;"></div>
+            </div>
+          </div>
+          <div class="card" id="signalCard" style="display:none;">
+            <div class="signal-main">
+              <div class="signal-badge" id="signalBadge"></div>
+              <div class="big-score" id="bigScore"></div>
+              <div class="sub" id="scoreTimeframe"></div>
+            </div>
+            <div id="tradeBox"></div>
+            <div id="riskOutput" style="font-size:0.8rem;margin-top:8px;"></div>
+          </div>
+        </div>
+        <div class="card" id="chartCard" style="display:none;"><div id="miniChart" style="width:100%;height:320px;"></div></div>
+        <div class="grid-2" id="detailPanels" style="display:none;">
+          <div class="card" id="indicatorsCard"></div>
+          <div class="card" id="snrCard"></div>
+        </div>
+        <div class="card" id="mtfCard" style="display:none;"></div>
+        <div class="card">
+          <div class="header-row">
+            <h3>MULTI-PAIR SCANNER</h3>
+            <div><button id="scanPairsBtn" class="btn btn-sm">SCAN ALL</button><button id="managePairsBtn" class="btn btn-sm">EDIT</button></div>
+          </div>
+          <div id="multiPairTable"></div>
+          <div id="pairManagerPanel" style="display:none;margin-top:12px;"></div>
+        </div>
+      </section>
+
+      <!-- WATCHLIST PAGE -->
+      <section id="watchlistPage" class="page">
+        <div class="card"><div class="header-row"><h3>WATCHLIST</h3><span id="wsStatus" style="font-size:0.7rem;color:#888;">Connecting...</span></div>
+        <div class="grid-4" id="watchlistGrid"></div></div>
+        <div class="card" id="topOppCard" style="display:none;"><h3 style="margin-bottom:12px;">TOP OPPORTUNITIES</h3><div id="topOppList"></div></div>
+      </section>
+
+      <!-- BACKTEST PAGE -->
+      <section id="backtestPage" class="page">
+        <div class="card">
+          <div class="input-row">
+            <input type="text" id="backtestSymbol" class="mono" value="BTCUSDT">
+            <select id="backtestInterval" class="select-inline"><option value="1h">1H</option><option value="4h">4H</option><option value="1d">1D</option></select>
+            <button id="runBacktestBtn" class="btn btn-primary">RUN</button>
+          </div>
+          <div id="backtestOutput"></div>
+        </div>
+      </section>
+
+      <!-- HISTORY PAGE -->
+      <section id="historyPage" class="page">
+        <div class="card">
+          <div class="header-row"><h3>HISTORY &amp; JOURNAL</h3><button id="exportBtn" class="btn btn-sm">CSV</button></div>
+          <div id="accuracyStats" style="margin-bottom:12px;"></div>
+          <div id="historyList"></div>
+        </div>
+      </section>
+
+      <!-- CONTACT PAGE -->
+      <section id="contactPage" class="page">
+        <div class="card">
+          <h3>KONTAK &amp; DONASI</h3>
+          <div class="contact-grid">
+            <div><strong>Email</strong><br><a href="mailto:rzahhonly@gmail.com">rzahhonly@gmail.com</a></div>
+            <div><strong>Instagram</strong><br><a href="https://instagram.com/rzz.roza" target="_blank">@rzz.roza</a></div>
+          </div>
+          <div class="donation-box" style="margin-top:16px;"><strong>Donasi Bitcoin</strong><br><code class="mono">bc1q0sg7h0yfvg5gxq9d3gjc8g8lq6z5xw7v9n5x3</code><button class="btn btn-sm" id="copyBtcBtn2" style="margin-left:8px;">Salin</button></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script src="js/indicators.js"></script>
+<script src="js/fetcher.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/chart.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/scanner.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
